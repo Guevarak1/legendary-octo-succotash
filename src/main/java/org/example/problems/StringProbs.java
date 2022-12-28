@@ -98,6 +98,30 @@ public class StringProbs {
         return res.toString();
     }
 
+    //can construct ransom note from magazine. each char from magazine can only be used once
+    public static boolean canConstruct(String ransomNote, String magazine) {
+        Map<Character, Integer> magMap = new HashMap<>();
+        for (char c : magazine.toCharArray()) {
+            int currCount = magMap.getOrDefault(c, 1);
+            magMap.put(c, currCount + 1);
+        }
+
+        Map<Character, Integer> ransMap = new HashMap<>();
+        for (char c : ransomNote.toCharArray()) {
+            int currCount = ransMap.getOrDefault(c, 1);
+            ransMap.put(c, currCount + 1);
+        }
+
+        for (char c : ransMap.keySet()) {
+            if (!magMap.containsKey(c)) return false;
+            int requiredCharCount = ransMap.get(c);
+            int magCharCount = magMap.get(c);
+            if (magCharCount < requiredCharCount) return false;
+        }
+
+        return true;
+    }
+
     //**********************
     //MEDIUMS
     //**********************

@@ -7,6 +7,21 @@ import java.util.*;
 public class ArrayProbs {
 
     public static void main(String[] args) {
+        int[] nums = {0, 0, 0};
+//        System.out.println(threeSum(nums));
+
+        int[] colors = {2, 0, 2, 1, 1, 0};
+//        sortColorsOnePass(colors);
+
+        int[] rotatedArray = {-1, -100, 3, 99};
+//        rotateInPlace(rotatedArray, 2);
+
+        List<Interval> meetings = new ArrayList<>();
+        meetings.add(new Interval(0, 5));
+        meetings.add(new Interval(5, 10));
+        meetings.add(new Interval(15, 20));
+
+//        meetingRooms(meetings);
     }
 
     //**********************
@@ -38,6 +53,7 @@ public class ArrayProbs {
         return new int[]{0, 0};
     }
 
+    //space O(1) time O(n^2)
     private static int[] twoSumIIBrute(int[] nums, int target) {
         for (int i = 0; i < nums.length; i++) {
             for (int j = i + 1; j < nums.length; j++) {
@@ -113,6 +129,16 @@ public class ArrayProbs {
     public static int majorityElementSorted(int[] nums) {
         Arrays.sort(nums);
         return nums[nums.length / 2];
+    }
+
+    public static boolean meetingRooms(List<Interval> meetingRooms) {
+        meetingRooms.sort(Comparator.comparing(Interval::getMin));
+        for (int i = 0; i < meetingRooms.size() - 1; i++) {
+            Interval currentTimeSlot = meetingRooms.get(i);
+            Interval nextTimeSlot = meetingRooms.get(i + 1);
+            if (currentTimeSlot.max > nextTimeSlot.min) return false;
+        }
+        return true;
     }
 
     //**********************
@@ -205,4 +231,131 @@ public class ArrayProbs {
         return null;
     }
 
+    //Space O(n) Time O(n^2)
+    public static List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> res = new ArrayList<>();
+
+        for (int i = 0; i < nums.length; i++) {
+            int currNum = nums[i];
+            int nextPointer = i + 1;
+            int reversePointer = nums.length - 1;
+            while (nextPointer < reversePointer) {
+                int nextNum = nums[nextPointer];
+                int reverseNum = nums[reversePointer];
+
+                int resSum = currNum + nextNum + reverseNum;
+                if (resSum == 0) {
+                    ArrayList<Integer> numsArr = new ArrayList<>();
+                    numsArr.add(currNum);
+                    numsArr.add(nextNum);
+                    numsArr.add(reverseNum);
+                    if (!res.contains(numsArr))
+                        res.add(numsArr);
+                }
+                if (resSum > 0)
+                    reversePointer--;
+                else
+                    nextPointer++;
+            }
+        }
+        return res;
+    }
+
+    //https://leetcode.com/problems/sort-colors/
+    //sort without using Array.sort() aka sort in place
+    //[2,0,2,1,1,0] -> [0,0,1,1,2,2]
+    public static void sortColors(int[] nums) {
+        int zeros = 0;
+        int ones = 0;
+        int twos = 0;
+
+        for (int num : nums) {
+            if (num == 0) zeros++;
+            else if (num == 1) ones++;
+            else if (num == 2) twos++;
+        }
+
+        for (int i = 0; i < zeros; i++) {
+            nums[i] = 0;
+        }
+
+        for (int i = zeros; i < zeros + ones; i++) {
+            nums[i] = 1;
+        }
+
+        for (int i = zeros + ones; i < zeros + ones + twos; i++) {
+            nums[i] = 2;
+        }
+    }
+
+    //dont increment iterator when nums[i] == 2 because we might swap out 1 out of place
+    //Space O(1) Time O(n)
+    public static void sortColorsOnePass(int[] nums) {
+        int leftPointer = 0;
+        int rightPointer = nums.length - 1;
+        int i = 0;
+        while (i <= rightPointer) {
+            if (nums[i] == 0) {
+                swap(nums, i, leftPointer);
+                leftPointer++;
+                i++;
+            } else if (nums[i] == 2) {
+                swap(nums, i, rightPointer);
+                rightPointer--;
+            } else {
+                i++;
+            }
+        }
+    }
+
+    private static void swap(int[] nums, int i, int j) {
+        int tmp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = tmp;
+    }
+
+    //https://leetcode.com/problems/rotate-array/
+    public static void rotateExtraSpace(int[] nums, int k) {
+        int[] rotatedArr = new int[nums.length];
+
+        for (int i = 0; i < nums.length; i++) {
+            if (i + k >= nums.length) {
+                int rotatedIndex = (i + k) % nums.length;
+                rotatedArr[rotatedIndex] = nums[i];
+            } else {
+                rotatedArr[i + k] = nums[i];
+            }
+        }
+
+        System.arraycopy(rotatedArr, 0, nums, 0, nums.length);
+    }
+
+    //a "trick" reverse array, then reverse everything before arr[k] then everything after arr[k]
+    public static void rotateInPlace(int[] nums, int k) {
+        int leftPointer = 0;
+        int rightPointer = nums.length - 1;
+        //reverse
+        while (leftPointer < rightPointer) {
+            swap(nums, leftPointer, rightPointer);
+            leftPointer++;
+            rightPointer--;
+        }
+
+        leftPointer = 0;
+        rightPointer = k - 1;
+        while (leftPointer < rightPointer) {
+            swap(nums, leftPointer, rightPointer);
+            leftPointer++;
+            rightPointer--;
+        }
+
+        leftPointer = k;
+        rightPointer = nums.length - 1;
+        while (leftPointer < rightPointer) {
+            swap(nums, leftPointer, rightPointer);
+            leftPointer++;
+            rightPointer--;
+        }
+    }
 }

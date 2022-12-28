@@ -19,4 +19,8 @@ public class Interval {
         }
         return result;
     }
+
+    public int getMin() {
+        return min;
+    }
 }
